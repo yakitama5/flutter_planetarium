@@ -5,56 +5,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "dev-debug",
-      "cwd": "apps/app",
+      "name": "debug",
       "request": "launch",
       "program": "lib/main.dart",
       "type": "dart",
-      "args": ["--dart-define-from-file=dart_defines/dev.json", "--web-renderer html"]
-    },
-    {
-      "name": "dev-profile",
-      "cwd": "apps/app",
-      "request": "launch",
-      "program": "lib/main.dart",
-      "type": "dart",
-      "args": [
-        "--dart-define-from-file=dart_defines/dev.json",
-        "--web-renderer html",
-        "--profile"
-      ]
-    },
-    {
-      "name": "dev-release",
-      "cwd": "apps/app",
-      "request": "launch",
-      "program": "lib/main.dart",
-      "type": "dart",
-      "args": [
-        "--dart-define-from-file=dart_defines/dev.json",
-        "--web-renderer html",
-        "--release"
-      ]
-    },
-    {
-      "name": "prd-debug",
-      "cwd": "apps/app",
-      "request": "launch",
-      "program": "lib/main.dart",
-      "type": "dart",
-      "args": ["--dart-define-from-file=dart_defines/prod.json", "--web-renderer html"]
-    },
-    {
-      "name": "device-preview",
-      "cwd": "apps/app",
-      "request": "launch",
-      "program": "lib/main.dart",
-      "type": "dart",
-      "args": [
-        "--dart-define-from-file=dart_defines/prod.json",
-        "--wasm",
-        "--dart-define=devicePreview=true"
-      ]
+      "args": ["--enable-flutter-gpu", "--enable-impeller"]
     }
   ]
 }
