@@ -31,6 +31,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Planetarium',
       home: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(title: Text('Planetarium')),
