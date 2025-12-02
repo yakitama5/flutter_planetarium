@@ -30,6 +30,8 @@ class ExampleSunState extends State<ExampleSun> {
 
   @override
   void initState() {
+    scene.environment.intensity = 5.0;
+    scene.environment.exposure = 5.0;
     // 太陽を上に配置 (Y軸を +10 ずらす)
     final sunModel = Node.fromAsset('build/models/sun.model').then((value) {
       value.name = 'Sun';
@@ -43,7 +45,7 @@ class ExampleSunState extends State<ExampleSun> {
     });
 
     // 地球を下に配置 (Y軸を -10 ずらす)
-    final earthModel = Node.fromAsset('build/models/sun.model').then((value) {
+    final earthModel = Node.fromAsset('build/models/earth.model').then((value) {
       value.name = 'Earth';
       value.localTransform = vm.Matrix4.translation(vm.Vector3(0.0, -10, 0.0));
 
