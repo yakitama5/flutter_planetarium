@@ -1,103 +1,47 @@
-import 'dart:math';
+import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:app_planetarium/math_utils.dart';
+import 'package:app_planetarium/models.dart';
+import 'package:app_planetarium/resource_cache.dart';
 import 'package:flutter_scene/scene.dart';
-import 'package:vector_math/vector_math.dart' as vm;
+import 'package:vector_math/vector_math.dart';
 
-class ExampleSun extends StatefulWidget {
-  const ExampleSun({super.key, this.elapsedSeconds = 0});
-  final double elapsedSeconds;
+class SunModel {
+  static const kRestingHeight = 1.5;
 
-  @override
-  ExampleSunState createState() => ExampleSunState();
-}
-
-class NodeState {
-  NodeState(this.node, this.startTransform);
-
-  Node node;
-  vm.Matrix4 startTransform;
-  double amount = 0;
-}
-
-class ExampleSunState extends State<ExampleSun> {
-  Scene scene = Scene();
-  bool loaded = false;
-
-  double wheelRotation = 0;
-
-  Map<String, NodeState> nodes = {};
-
-  @override
-  void initState() {
-    scene.environment.intensity = 5.0;
-    scene.environment.exposure = 5.0;
-    // 太陽を上に配置 (Y軸を +10 ずらす)
-    final sunModel = Node.fromAsset('build/models/sun.model').then((value) {
-      value.name = 'Sun';
-      // ↓↓↓ ここを追加 ↓↓↓
-      // Matrix4.translation(x, y, z) で位置を指定します
-      value.localTransform = vm.Matrix4.translation(vm.Vector3(0.0, 10.0, 0.0));
-      // ↑↑↑ ここまで ↑↑↑
-
-      scene.add(value);
-      debugPrint('Model loaded: ${value.name}');
-    });
-
-    // 地球を下に配置 (Y軸を -10 ずらす)
-    final earthModel = Node.fromAsset('build/models/earth.model').then((value) {
-      value.name = 'Earth';
-      value.localTransform = vm.Matrix4.translation(vm.Vector3(0.0, -10, 0.0));
-
-      scene.add(value);
-      debugPrint('Model loaded: ${value.name}');
-    });
-
-    Future.wait([sunModel, earthModel]).then((_) {
-      debugPrint('Scene loaded.');
-      setState(() {
-        loaded = true;
-      });
-    });
-
-    super.initState();
+  SunModel(this.position) {
+    _node = ResourceCache.getModel(Models.sun).clone();
   }
 
-  @override
-  void dispose() {
-    scene.removeAll();
-    super.dispose();
+  late final Node _node;
+
+  Node get node => _node;
+
+  Vector3 position;
+  double rotation = 0;
+
+  double scale = 0;
+
+  Vector3 startDestroyPosition = Vector3.zero();
+  double destroyAnimation = 0;
+
+  void updateNode() {
+    _node.globalTransform =
+        Matrix4.translation(position) *
+        Matrix4.rotationY(rotation) *
+        math.min(1.0, 3 - 3 * destroyAnimation) *
+        scale;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (!loaded) {
-      return const Center(child: CircularProgressIndicator());
-    }
+  /// Returns false when the spike has completed the destruction animation.
+  /// Returns true if the spike is still active and should continue being
+  /// updated.
+  bool update(double deltaSeconds) {
+    scale = lerpDeltaTime(scale, 1, 0.02, deltaSeconds);
+    rotation += deltaSeconds * 2;
 
-    return SizedBox.expand(
-      child: CustomPaint(painter: _ScenePainter(scene, widget.elapsedSeconds)),
-    );
+    updateNode();
+
+    return true;
   }
-}
-
-class _ScenePainter extends CustomPainter {
-  _ScenePainter(this.scene, this.elapsedTime);
-  Scene scene;
-  double elapsedTime;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    double rotationAmount = elapsedTime * 0.2;
-    final camera = PerspectiveCamera(
-      position:
-          vm.Vector3(sin(rotationAmount) * 10, 0, cos(rotationAmount) * 10) * 2,
-      target: vm.Vector3(0, 0, 0),
-    );
-
-    scene.render(camera, canvas, viewport: Offset.zero & size);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
