@@ -10,6 +10,7 @@ void main(List<String> args) {
         'assets/glb/sphere.glb',
         'assets/glb/sun.glb',
         'assets/glb/earth.glb',
+        'assets/glb/earth_large.glb',
       ],
     );
   });
