@@ -40,7 +40,7 @@ class PlanetariumState extends State<Planetarium> {
 
       // 輝く星を作成してシーンに追加
       final random = Random();
-      shiningStars = List.generate(2000, (i) {
+      shiningStars = List.generate(100, (i) {
         // 球体内にランダムな座標を生成
         final r = domeRadius * pow(random.nextDouble(), 1 / 3);
         final theta = acos(2 * random.nextDouble() - 1);
