@@ -102,7 +102,7 @@ class _ScenePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final camera = PerspectiveCamera(
       // 少し引いた位置にカメラを配置
-      position: vm.Vector3(0, 0, 200.0),
+      position: vm.Vector3(0, 0, 30.0),
       // 太陽を中心に少し下を見る
       target: vm.Vector3(0, 0, 0),
     );
