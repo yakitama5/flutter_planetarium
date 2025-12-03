@@ -1,4 +1,4 @@
-import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
+import 'dart:math';
 
 import 'package:app_planetarium/models.dart';
 import 'package:app_planetarium/planet/earth.dart';
@@ -21,6 +21,8 @@ class Planetarium extends StatefulWidget {
 
 /// プラネタリウムの状態を管理するステートクラス
 class PlanetariumState extends State<Planetarium> {
+  static const domeRadius = 100.0;
+
   Scene scene = Scene();
   List<Planet> planets = [];
   List<ShiningStar> shiningStars = [];
@@ -37,16 +39,26 @@ class PlanetariumState extends State<Planetarium> {
       ];
 
       // 輝く星を作成してシーンに追加
-      shiningStars = List.generate(
-        100,
-        (i) => ShiningStar(
+      final random = Random();
+      shiningStars = List.generate(100, (i) {
+        // 球体内にランダムな座標を生成
+        final r = domeRadius * pow(random.nextDouble(), 1 / 3);
+        final theta = acos(2 * random.nextDouble() - 1);
+        final phi = 2 * pi * random.nextDouble();
+
+        final x = r * sin(theta) * cos(phi);
+        final y = r * sin(theta) * sin(phi);
+        final z = r * cos(theta);
+
+        return ShiningStar(
           rotationSpeed: 0.005,
-          position: vm.Vector3(0, -15, 0),
+          position: vm.Vector3(x, y, z),
           node: ResourceCache.getModel(Models.starSunglasses),
-        ),
-      );
+        );
+      });
 
       scene.addAll(planets.map((p) => p.node));
+      scene.addAll(shiningStars.map((s) => s.node));
 
       // ロード完了
       setState(() {
@@ -74,14 +86,11 @@ class PlanetariumState extends State<Planetarium> {
     for (final p in planets) {
       p.update(widget.elapsedSeconds);
     }
+    for (final s in shiningStars) {
+      s.update(widget.elapsedSeconds);
+    }
 
     return SizedBox.expand(child: CustomPaint(painter: _ScenePainter(scene)));
-  }
-
-  vm.Vector3 _calculatePlanetPosition(double angle, double distance) {
-    final x = distance * cos(angle);
-    final z = distance * sin(angle);
-    return vm.Vector3(x, 0, z);
   }
 }
 
@@ -93,9 +102,9 @@ class _ScenePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final camera = PerspectiveCamera(
       // 少し引いた位置にカメラを配置
-      position: vm.Vector3(0, 0, 30.0),
+      position: vm.Vector3(0, 0, 200.0),
       // 太陽を中心に少し下を見る
-      target: vm.Vector3(0, -5, 0),
+      target: vm.Vector3(0, 0, 0),
     );
 
     scene.render(camera, canvas, viewport: Offset.zero & size);
