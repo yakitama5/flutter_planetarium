@@ -1,4 +1,9 @@
+import 'dart:nativewrappers/_internal/vm/lib/math_patch.dart';
+
+import 'package:app_planetarium/models.dart';
 import 'package:app_planetarium/planet/earth.dart';
+import 'package:app_planetarium/planet/planet.dart';
+import 'package:app_planetarium/planet/star.dart';
 import 'package:app_planetarium/planet/sun.dart';
 import 'package:app_planetarium/resource_cache.dart';
 import 'package:flutter/material.dart';
@@ -17,21 +22,31 @@ class Planetarium extends StatefulWidget {
 /// プラネタリウムの状態を管理するステートクラス
 class PlanetariumState extends State<Planetarium> {
   Scene scene = Scene();
-  Sun? sun;
-  Earth? earth;
+  List<Planet> planets = [];
+  List<ShiningStar> shiningStars = [];
   bool loaded = false;
 
   @override
   void initState() {
     // キャッシュを初期化
     ResourceCache.preloadAll().then((_) {
-      // 太陽を中心にシーンを構築
-      sun = Sun(position: vm.Vector3(0, 0, 0));
-      scene.add(sun!.node);
+      // 惑星を作成してシーンに追加
+      planets = [
+        Sun(position: vm.Vector3(0, 0, 0)),
+        Earth(position: vm.Vector3(0, -15, 0)),
+      ];
 
-      // 地球を追加
-      earth = Earth(position: vm.Vector3(0, -15, 0));
-      scene.add(earth!.node);
+      // 輝く星を作成してシーンに追加
+      shiningStars = List.generate(
+        100,
+        (i) => ShiningStar(
+          rotationSpeed: 0.005,
+          position: vm.Vector3(0, -15, 0),
+          node: ResourceCache.getModel(Models.starSunglasses),
+        ),
+      );
+
+      scene.addAll(planets.map((p) => p.node));
 
       // ロード完了
       setState(() {
@@ -56,10 +71,17 @@ class PlanetariumState extends State<Planetarium> {
     }
 
     // シーンの更新
-    sun?.update(widget.elapsedSeconds);
-    earth?.update(widget.elapsedSeconds);
+    for (final p in planets) {
+      p.update(widget.elapsedSeconds);
+    }
 
     return SizedBox.expand(child: CustomPaint(painter: _ScenePainter(scene)));
+  }
+
+  vm.Vector3 _calculatePlanetPosition(double angle, double distance) {
+    final x = distance * cos(angle);
+    final z = distance * sin(angle);
+    return vm.Vector3(x, 0, z);
   }
 }
 

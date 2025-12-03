@@ -3,7 +3,8 @@ enum Models {
   sun('build/models/sun.model'),
   saturn('build/models/saturn.model'),
   sphere('build/models/sphere.model'),
-  earth('build/models/earth.model');
+  earth('build/models/earth.model'),
+  starSunglasses('build/models/star_sunglasses.model');
 
   final String path;
   const Models(this.path);
