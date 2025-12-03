@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
-const modelCheck = true;
+const modelCheck = false;
 
 /// プラネタリウム全体を管理するメインウィジェット
 class Planetarium extends StatefulWidget {
@@ -39,8 +39,8 @@ class PlanetariumState extends State<Planetarium> {
         shiningStars = [
           ShiningStar(
             rotationSpeed: 0.005,
-            position: vm.Vector3(0, 0, 0),
-            node: ResourceCache.getModel(Models.cubit),
+            position: vm.Vector3(0, 0, 4),
+            node: ResourceCache.getModel(Models.star),
           ),
         ];
         scene.add(shiningStars.first.node);
