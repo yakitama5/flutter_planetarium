@@ -9,6 +9,7 @@ void main(List<String> args) {
         'assets/glb/sun.glb',
         'assets/glb/earth.glb',
         'assets/glb/star.glb',
+        'assets/glb/cubit.glb',
       ],
     );
   });
