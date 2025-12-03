@@ -39,7 +39,7 @@ class PlanetariumState extends State<Planetarium> {
           ShiningStar(
             rotationSpeed: 0.005,
             position: vm.Vector3(0, 0, 0),
-            node: ResourceCache.getModel(Models.star),
+            node: ResourceCache.getModel(Models.cubit),
           ).node,
         );
 
