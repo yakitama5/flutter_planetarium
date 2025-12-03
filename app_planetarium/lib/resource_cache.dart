@@ -10,7 +10,7 @@ class ResourceCache {
     await Future.wait([
       ...Models.values.map(
         (model) => Node.fromAsset(model.path).then((node) {
-          _models[model.name] = _convertToUnlit(node);
+          _models[model.name] = model.unlit ? _convertToUnlit(node) : node;
         }),
       ),
     ]);
@@ -23,7 +23,6 @@ class ResourceCache {
 
   /// ノードをアンリットマテリアルに変換するヘルパー関数
   static Node _convertToUnlit(Node node) {
-    // Search for all mesh primitives and convert them to unlit.
     if (node.mesh != null) {
       for (final primitive in node.mesh!.primitives) {
         if (primitive.material is PhysicallyBasedMaterial) {

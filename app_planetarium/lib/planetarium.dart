@@ -35,19 +35,22 @@ class PlanetariumState extends State<Planetarium> {
     // キャッシュを初期化
     ResourceCache.preloadAll().then((_) {
       if (modelCheck) {
-        scene.add(
+        // モデル確認用シーンを作成
+        shiningStars = [
           ShiningStar(
             rotationSpeed: 0.005,
             position: vm.Vector3(0, 0, 0),
             node: ResourceCache.getModel(Models.cubit),
-          ).node,
-        );
+          ),
+        ];
+        scene.add(shiningStars.first.node);
 
         // ロード完了
         setState(() {
           debugPrint('Scene loaded.');
           loaded = true;
         });
+        return;
       }
 
       // 惑星を作成してシーンに追加
