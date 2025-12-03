@@ -53,7 +53,7 @@ class PlanetariumState extends State<Planetarium> {
         return ShiningStar(
           rotationSpeed: 0.005,
           position: vm.Vector3(x, y, z),
-          node: ResourceCache.getModel(Models.starSunglasses),
+          node: ResourceCache.getModel(Models.star),
         );
       });
 
@@ -102,7 +102,7 @@ class _ScenePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final camera = PerspectiveCamera(
       // 少し引いた位置にカメラを配置
-      position: vm.Vector3(0, 0, 100.0),
+      position: vm.Vector3(0, 0, 50.0),
       // 太陽を中心に少し下を見る
       target: vm.Vector3(0, 0, 0),
     );
