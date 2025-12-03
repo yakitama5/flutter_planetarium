@@ -50,7 +50,6 @@
     "**/.macos": true
   },
   "files.exclude": {
-    "**/.fvm": true,
     "**/.firebase": true,
     "**/.dart_tool": true,
     "**/.idea": true,

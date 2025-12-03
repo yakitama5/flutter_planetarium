@@ -18,7 +18,7 @@ class ResourceCache {
 
   /// モデルを取得する
   static Node getModel(Models model) {
-    return _models[model.name]!;
+    return _models[model.name]!.clone();
   }
 
   /// ノードをアンリットマテリアルに変換するヘルパー関数

@@ -40,7 +40,7 @@ class PlanetariumState extends State<Planetarium> {
 
       // 輝く星を作成してシーンに追加
       final random = Random();
-      shiningStars = List.generate(100, (i) {
+      shiningStars = List.generate(2000, (i) {
         // 球体内にランダムな座標を生成
         final r = domeRadius * pow(random.nextDouble(), 1 / 3);
         final theta = acos(2 * random.nextDouble() - 1);
@@ -102,7 +102,7 @@ class _ScenePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final camera = PerspectiveCamera(
       // 少し引いた位置にカメラを配置
-      position: vm.Vector3(0, 0, 30.0),
+      position: vm.Vector3(0, 0, 100.0),
       // 太陽を中心に少し下を見る
       target: vm.Vector3(0, 0, 0),
     );
