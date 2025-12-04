@@ -8,7 +8,7 @@ void main(List<String> args) {
       inputFilePaths: [
         'assets/glb/cubit.glb',
         'assets/glb/earth.glb',
-        'assets/glb/four_pointed_star_yellow.glb',
+        'assets/glb/four_pointed_star.glb',
         'assets/glb/pentagram.glb',
         'assets/glb/polygonal_star.glb',
         'assets/glb/star_dome.glb',
