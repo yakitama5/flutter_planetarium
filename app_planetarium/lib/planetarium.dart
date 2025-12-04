@@ -40,7 +40,7 @@ class PlanetariumState extends State<Planetarium> {
           ShiningStar(
             rotationSpeed: 0.005,
             position: vm.Vector3(0, 0, 4),
-            node: ResourceCache.getModel(Models.star),
+            node: ResourceCache.getModel(Models.pentagram),
           ),
         ];
         scene.add(shiningStars.first.node);
@@ -74,7 +74,7 @@ class PlanetariumState extends State<Planetarium> {
         return ShiningStar(
           rotationSpeed: 0.005,
           position: vm.Vector3(x, y, z),
-          node: ResourceCache.getModel(Models.star),
+          node: ResourceCache.getModel(Models.pentagram),
         );
       });
 

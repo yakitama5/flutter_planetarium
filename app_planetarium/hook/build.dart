@@ -6,10 +6,13 @@ void main(List<String> args) {
     buildModels(
       buildInput: config,
       inputFilePaths: [
-        'assets/glb/sun.glb',
-        'assets/glb/earth.glb',
-        'assets/glb/star.glb',
         'assets/glb/cubit.glb',
+        'assets/glb/earth.glb',
+        'assets/glb/four_pointed_star_yellow.glb',
+        'assets/glb/pentagram.glb',
+        'assets/glb/polygonal_star.glb',
+        'assets/glb/star_dome.glb',
+        'assets/glb/sun.glb',
       ],
     );
   });
