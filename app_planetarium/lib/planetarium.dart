@@ -107,6 +107,11 @@ class PlanetariumState extends State<Planetarium> {
     for (final p in planets) {
       p.update(widget.elapsedSeconds);
     }
+
+    /// 輝く星の更新処理
+    /// Notes: CPUゲキ重ポイント
+    /// flutter_gpuでGPUインスタンシングに対応した書き方であれば、負荷が軽減可能？
+    /// FlutterScene自体はまだGPUインスタンシングに対応していない？
     for (final s in shiningStars) {
       s.update(widget.elapsedSeconds);
     }
