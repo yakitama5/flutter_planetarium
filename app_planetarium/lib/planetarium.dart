@@ -116,13 +116,17 @@ class PlanetariumState extends State<Planetarium> {
       s.update(widget.elapsedSeconds);
     }
 
-    return SizedBox.expand(child: CustomPaint(painter: _ScenePainter(scene)));
+    return SizedBox.expand(
+      child: CustomPaint(painter: _ScenePainter(scene, widget.elapsedSeconds)),
+    );
   }
 }
 
 class _ScenePainter extends CustomPainter {
-  _ScenePainter(this.scene);
+  _ScenePainter(this.scene, this.elapsedSeconds);
+
   Scene scene;
+  final double elapsedSeconds;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -137,11 +141,32 @@ class _ScenePainter extends CustomPainter {
       return;
     }
 
+    // --- ここからカメラ移動の計算 ---
+
+    // 1. 半径の設定 (奥行き50)
+    const radius = 50.0;
+
+    // 2. 回転速度の設定 (数字を大きくすると速く回ります)
+    const speed = 0.5;
+
+    // 3. 現在の角度を計算 (時間 × 速度)
+    final angle = elapsedSeconds * speed;
+
+    // 4. 三角関数で座標に変換 (Y軸周りの回転)
+    // sinとcosを使うことで円軌道を描きます
+    final x = radius * sin(angle);
+    final z = radius * cos(angle);
+
     final camera = PerspectiveCamera(
-      // 少し引いた位置にカメラを配置
-      position: vm.Vector3(0, 0, 50.0),
-      // 太陽を中心に少し下を見る
+      // 計算した座標をセット
+      // Yを0にすると赤道上を回ります。Yを20とかにすると少し高い位置から見下ろせます
+      position: vm.Vector3(x, 0, z),
+
+      // 常に中心(0,0,0)を見る設定
       target: vm.Vector3(0, 0, 0),
+
+      // カメラの「上」方向を指定 (通常はY軸が上)
+      up: vm.Vector3(0, 1, 0),
     );
 
     scene.render(camera, canvas, viewport: Offset.zero & size);
