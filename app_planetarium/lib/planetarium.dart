@@ -141,32 +141,34 @@ class _ScenePainter extends CustomPainter {
       return;
     }
 
-    // --- ここからカメラ移動の計算 ---
+    // 1. 半径の設定
+    // 宇宙全体が見えるように、少し距離を離しました (50 -> 80)
+    const radius = 80.0;
 
-    // 1. 半径の設定 (奥行き50)
-    const radius = 50.0;
-
-    // 2. 回転速度の設定 (数字を大きくすると速く回ります)
+    // 2. 回転速度の設定
     const speed = 0.5;
 
-    // 3. 現在の角度を計算 (時間 × 速度)
+    // 3. 現在の角度を計算
     final angle = elapsedSeconds * speed;
 
-    // 4. 三角関数で座標に変換 (Y軸周りの回転)
-    // sinとcosを使うことで円軌道を描きます
-    final x = radius * sin(angle);
+    // 4. 座標変換 (YZ軸周りの回転に変更)
+    // X: 固定 (少し横にずらすと立体感が出ます)
+    // Y: sinで高さが変化
+    // Z: cosで奥行きが変化
+    final x = 10.0;
+    final y = radius * sin(angle);
     final z = radius * cos(angle);
 
     final camera = PerspectiveCamera(
-      // 計算した座標をセット
-      // Yを0にすると赤道上を回ります。Yを20とかにすると少し高い位置から見下ろせます
-      position: vm.Vector3(x, 0, z),
+      position: vm.Vector3(x, y, z),
 
-      // 常に中心(0,0,0)を見る設定
-      target: vm.Vector3(0, 0, 0),
+      // 視点を「中心より少し下」に向けることで、カメラ自体は上向き（見下ろす形）になりやすくなります
+      // 0, -20, 0 あたりを見ると、画面の上の方に星空が広がる構図になります
+      target: vm.Vector3(0, -20, 0),
 
-      // カメラの「上」方向を指定 (通常はY軸が上)
-      up: vm.Vector3(0, 1, 0),
+      // 【重要】YZ軌道（縦回転）の場合、カメラの「上」をX軸(1, 0, 0)にすると安定します。
+      // 通常の(0, 1, 0)のままだと、カメラが真上や真下に来た時に画面がカクっと反転してしまいます。
+      up: vm.Vector3(1, 0, 0),
     );
 
     scene.render(camera, canvas, viewport: Offset.zero & size);
