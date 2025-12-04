@@ -6,6 +6,7 @@ import 'package:app_planetarium/planet/planet.dart';
 import 'package:app_planetarium/planet/star.dart';
 import 'package:app_planetarium/planet/sun.dart';
 import 'package:app_planetarium/resource_cache.dart';
+import 'package:app_planetarium/star_dome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart' as vm;
@@ -26,6 +27,7 @@ class PlanetariumState extends State<Planetarium> {
   static const domeRadius = 100.0;
 
   Scene scene = Scene();
+  StarDome starDome = StarDome();
   List<Planet> planets = [];
   List<ShiningStar> shiningStars = [];
   bool loaded = false;
@@ -78,6 +80,7 @@ class PlanetariumState extends State<Planetarium> {
         );
       });
 
+      scene.add(starDome.node);
       scene.addAll(planets.map((p) => p.node));
       scene.addAll(shiningStars.map((s) => s.node));
 
