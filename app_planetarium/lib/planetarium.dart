@@ -144,33 +144,38 @@ class _ScenePainter extends CustomPainter {
       return;
     }
 
-    // 1. 半径の設定
-    // 宇宙全体が見えるように、少し距離を離しました (50 -> 80)
     const radius = 80.0;
-
-    // 2. 回転速度の設定
     const speed = 0.5;
-
-    // 3. 現在の角度を計算
     final angle = elapsedSeconds * speed;
 
-    // 4. 座標変換 (YZ軸周りの回転に変更)
-    // X: 固定 (少し横にずらすと立体感が出ます)
-    // Y: sinで高さが変化
-    // Z: cosで奥行きが変化
-    final x = 10.0;
-    final y = radius * sin(angle);
-    final z = radius * cos(angle);
+    // 1. カメラの現在位置 (YZ軌道)
+    final camX = 10.0; // 少し横にずらす
+    final camY = radius * sin(angle);
+    final camZ = radius * cos(angle);
+    final currentPos = vm.Vector3(camX, camY, camZ);
+
+    // 2. 「進行方向」のベクトル (接線)
+    // sinの微分はcos, cosの微分は-sin
+    final forwardY = cos(angle);
+    final forwardZ = -sin(angle);
+    final forwardVector = vm.Vector3(0, forwardY, forwardZ);
+
+    // 3. 「下方向（中心方向）」のベクトル
+    // 現在位置の逆ベクトル（中心に向かう）
+    final downY = -sin(angle);
+    final downZ = -cos(angle);
+    final downVector = vm.Vector3(0, downY, downZ);
+
+    // 4. ターゲットの決定 (進行方向と下方向をブレンド)
+    // これらを足すことで「進行方向から45度下」を向くベクトルになります。
+    // そのベクトルを現在位置に足すことで「見るべき点」を作ります。
+    final lookDir = (forwardVector + downVector).normalized();
+    final targetPos = currentPos + (lookDir * 50.0); // 50.0は視線の先にある点までの距離
 
     final camera = PerspectiveCamera(
-      position: vm.Vector3(x, y, z),
-
-      // 視点を「中心より少し下」に向けることで、カメラ自体は上向き（見下ろす形）になりやすくなります
-      // 0, -20, 0 あたりを見ると、画面の上の方に星空が広がる構図になります
-      target: vm.Vector3(0, -20, 0),
-
-      // 【重要】YZ軌道（縦回転）の場合、カメラの「上」をX軸(1, 0, 0)にすると安定します。
-      // 通常の(0, 1, 0)のままだと、カメラが真上や真下に来た時に画面がカクっと反転してしまいます。
+      position: currentPos,
+      target: targetPos,
+      // YZ軌道なので、カメラの「上」をX軸に固定すると安定します
       up: vm.Vector3(1, 0, 0),
     );
 
