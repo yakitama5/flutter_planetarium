@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
-const modelCheck = false;
+const modelCheck = true;
 
 /// プラネタリウム全体を管理するメインウィジェット
 class Planetarium extends StatefulWidget {
@@ -35,20 +35,20 @@ class PlanetariumState extends State<Planetarium> {
   void initState() {
     // キャッシュを初期化
     ResourceCache.preloadAll().then((_) {
-      if (modelCheck) {
-        // モデル確認用シーンを作成
-        shiningStars = [
-          ShiningStar(position: vm.Vector3(0, 0, 4), model: Models.pentagram),
-        ];
-        scene.add(shiningStars.first.node);
+      // if (modelCheck) {
+      //   // モデル確認用シーンを作成
+      //   shiningStars = [
+      //     ShiningStar(position: vm.Vector3(0, 0, 4), model: Models.pentagram),
+      //   ];
+      //   scene.add(shiningStars.first.node);
 
-        // ロード完了
-        setState(() {
-          debugPrint('Scene loaded.');
-          loaded = true;
-        });
-        return;
-      }
+      //   // ロード完了
+      //   setState(() {
+      //     debugPrint('Scene loaded.');
+      //     loaded = true;
+      //   });
+      //   return;
+      // }
 
       // 惑星を作成してシーンに追加
       planets = [
@@ -138,7 +138,7 @@ class _ScenePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (modelCheck) {
       final camera = PerspectiveCamera(
-        position: vm.Vector3(0, 0, 5.0),
+        position: vm.Vector3(0, 0, 50.0),
         target: vm.Vector3(0, 0, 0),
       );
 

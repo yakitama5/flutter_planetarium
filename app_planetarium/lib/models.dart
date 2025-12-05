@@ -1,19 +1,19 @@
 /// 利用可能な3Dモデルの一覧
 enum Models {
-  earth('build/models/earth.glb.model'),
-  fourPointedStar('build/models/four_pointed_star.glb.model'),
-  jupiter('build/models/jupiter.glb.model'),
-  mars('build/models/mars.glb.model'),
-  mercury('build/models/mercury.glb.model'),
-  moon('build/models/moon.glb.model'),
-  neptune('build/models/neptune.glb.model'),
-  pentagram('build/models/pentagram.glb.model'),
-  polygonalStar('build/models/polygonal_star.glb.model'),
-  saturn('build/models/saturn.glb.model'),
-  starDome('build/models/star_dome.glb.model'),
-  sun('build/models/sun.glb.model'),
-  uranus('build/models/uranus.glb.model'),
-  venus('build/models/venus.glb.model');
+  earth('build/models/earth.model'),
+  fourPointedStar('build/models/four_pointed_star.model', unlit: true),
+  jupiter('build/models/jupiter.model', unlit: true),
+  mars('build/models/mars.model', unlit: true),
+  mercury('build/models/mercury.model', unlit: true),
+  moon('build/models/moon.model', unlit: true),
+  neptune('build/models/neptune.model', unlit: true),
+  pentagram('build/models/pentagram.model'),
+  polygonalStar('build/models/polygonal_star.model'),
+  saturn('build/models/saturn.model', unlit: true),
+  starDome('build/models/star_dome.model'),
+  sun('build/models/sun.model', unlit: true),
+  uranus('build/models/uranus.model', unlit: true),
+  venus('build/models/venus.model', unlit: true);
 
   final String path;
   final bool unlit;
