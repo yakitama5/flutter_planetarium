@@ -148,35 +148,37 @@ class _ScenePainter extends CustomPainter {
     const speed = 0.5;
     final angle = elapsedSeconds * speed;
 
-    // 1. カメラの現在位置 (YZ軌道)
-    final camX = 10.0; // 少し横にずらす
+    // 1. カメラの現在位置
+    final camX = 0.0; // くぐり抜けるならXはずらさず0の方が迫力が出ます
     final camY = radius * sin(angle);
     final camZ = radius * cos(angle);
     final currentPos = vm.Vector3(camX, camY, camZ);
 
     // 2. 「進行方向」のベクトル (接線)
-    // sinの微分はcos, cosの微分は-sin
     final forwardY = cos(angle);
     final forwardZ = -sin(angle);
     final forwardVector = vm.Vector3(0, forwardY, forwardZ);
 
     // 3. 「下方向（中心方向）」のベクトル
-    // 現在位置の逆ベクトル（中心に向かう）
     final downY = -sin(angle);
     final downZ = -cos(angle);
     final downVector = vm.Vector3(0, downY, downZ);
 
-    // 4. ターゲットの決定 (進行方向と下方向をブレンド)
-    // これらを足すことで「進行方向から45度下」を向くベクトルになります。
-    // そのベクトルを現在位置に足すことで「見るべき点」を作ります。
+    // 4. ターゲットの決定
+    // 「進行方向」と「中心方向」を足して、斜め45度下（内側）を見る
     final lookDir = (forwardVector + downVector).normalized();
-    final targetPos = currentPos + (lookDir * 50.0); // 50.0は視線の先にある点までの距離
+    final targetPos = currentPos + (lookDir * 50.0);
+
+    // 【重要】カメラの上方向 (UPベクトル)
+    // X軸固定をやめて、「中心から外側に向かうベクトル」をUPにします。
+    // これで「足元が常に惑星側」「頭が宇宙の果て側」になり、ループしても自然な視点になります。
+    // currentPos は (0,0,0) からのベクトルそのものなので、正規化するだけでOKです。
+    final upVector = currentPos.normalized();
 
     final camera = PerspectiveCamera(
       position: currentPos,
       target: targetPos,
-      // YZ軌道なので、カメラの「上」をX軸に固定すると安定します
-      up: vm.Vector3(1, 0, 0),
+      up: upVector, // ここを変更
     );
 
     scene.render(camera, canvas, viewport: Offset.zero & size);
