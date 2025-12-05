@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:app_planetarium/behaviors/behavior.dart';
+import 'package:app_planetarium/behaviors/rotation_behavior.dart';
 import 'package:app_planetarium/models.dart';
 import 'package:app_planetarium/planet/earth.dart';
 import 'package:app_planetarium/planet/jupiter.dart';
@@ -29,10 +31,9 @@ class RandomUniverse extends StatefulWidget {
 
 /// プラネタリウムの状態を管理するステートクラス
 class RandomUniverseState extends State<RandomUniverse> {
-  static const domeRadius = 50.0;
-
   Scene scene = Scene();
   List<Planet> planets = [];
+  final Map<Planet, Behavior> _behaviors = {};
   List<ShiningStar> shiningStars = [];
   bool loaded = false;
 
@@ -40,21 +41,7 @@ class RandomUniverseState extends State<RandomUniverse> {
   void initState() {
     // キャッシュを初期化
     ResourceCache.preloadAll().then((_) {
-      // 惑星を作成してシーンに追加
-      final sun = Sun(position: vm.Vector3(0, 0, 0));
-      final earth = Earth();
-      planets = [
-        sun,
-        Mercury(),
-        Venus(),
-        earth,
-        Moon(earth: earth),
-        Mars(),
-        Jupiter(),
-        Saturn(),
-        Uranus(),
-        Neptune(),
-      ];
+      _buildRandomUniverse();
 
       // 輝く星を作成してシーンに追加
       final random = Random();
@@ -68,8 +55,7 @@ class RandomUniverseState extends State<RandomUniverse> {
         final x = r * sin(theta) * cos(phi);
         final y = r * sin(theta) * sin(phi);
         final z = r * cos(theta);
-
-        // 0 ~ 2π (360度) の範囲でランダムな角度を作成
+        
         final rotX = random.nextDouble() * 2 * pi;
         final rotY = random.nextDouble() * 2 * pi;
         final rotZ = random.nextDouble() * 2 * pi;
@@ -96,6 +82,39 @@ class RandomUniverseState extends State<RandomUniverse> {
     super.initState();
   }
 
+  /// ランダム配置の宇宙（公転なし）を構築する
+  void _buildRandomUniverse() {
+    final random = Random();
+    planets = [
+      Sun(position: _randomPosition(random, 150)),
+      Mercury(position: _randomPosition(random, 150)),
+      Venus(position: _randomPosition(random, 150)),
+      Earth(position: _randomPosition(random, 150)),
+      Moon(position: _randomPosition(random, 150)),
+      Mars(position: _randomPosition(random, 150)),
+      Jupiter(position: _randomPosition(random, 150)),
+      Saturn(position: _randomPosition(random, 150)),
+      Uranus(position: _randomPosition(random, 150)),
+      Neptune(position: _randomPosition(random, 150)),
+    ];
+
+    for (var planet in planets) {
+      // ランダムな宇宙では自転だけさせる
+      _behaviors[planet] = RotationBehavior(rotationSpeed: random.nextDouble() * 0.05);
+    }
+  }
+
+  vm.Vector3 _randomPosition(Random random, double maxDistance) {
+      final r = maxDistance * pow(random.nextDouble(), 1 / 3);
+      final theta = acos(2 * random.nextDouble() - 1);
+      final phi = 2 * pi * random.nextDouble();
+      return vm.Vector3(
+        r * sin(theta) * cos(phi),
+        r * sin(theta) * sin(phi),
+        r * cos(theta),
+      );
+  }
+
   @override
   void dispose() {
     scene.removeAll();
@@ -110,13 +129,11 @@ class RandomUniverseState extends State<RandomUniverse> {
 
     // シーンの更新
     for (final p in planets) {
-      p.update(widget.elapsedSeconds);
+      // 振る舞いを適用
+      _behaviors[p]?.update(p, widget.elapsedSeconds);
+      // ノードを更新
+      p.updateNode();
     }
-
-    /// 輝く星の更新処理
-    /// Notes: CPUゲキ重ポイント
-    /// flutter_gpuでGPUインスタンシングに対応した書き方であれば、負荷が軽減可能？
-    /// FlutterScene自体はまだGPUインスタンシングに対応していない？
     // for (final s in shiningStars) {
     //   s.update(widget.elapsedSeconds);
     // }

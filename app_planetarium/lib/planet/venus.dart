@@ -1,14 +1,13 @@
 import 'package:app_planetarium/models.dart';
-import 'package:app_planetarium/planet/orbiting_planet.dart';
+import 'package:app_planetarium/planet/planet.dart';
 import 'package:app_planetarium/resource_cache.dart';
+import 'package:vector_math/vector_math.dart' as vm;
 
 /// 金星を表すクラス
-class Venus extends OrbitingPlanet {
-  Venus()
+class Venus extends Planet {
+  Venus({required vm.Vector3 position})
       : super(
-          rotationSpeed: 0.005,
+          position: position,
           node: ResourceCache.getModel(Models.venus),
-          distance: 30,
-          orbitalSpeed: 0.5,
         );
 }

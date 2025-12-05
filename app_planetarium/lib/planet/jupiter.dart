@@ -1,14 +1,13 @@
 import 'package:app_planetarium/models.dart';
-import 'package:app_planetarium/planet/orbiting_planet.dart';
+import 'package:app_planetarium/planet/planet.dart';
 import 'package:app_planetarium/resource_cache.dart';
+import 'package:vector_math/vector_math.dart' as vm;
 
 /// 木星を表すクラス
-class Jupiter extends OrbitingPlanet {
-  Jupiter()
+class Jupiter extends Planet {
+  Jupiter({required vm.Vector3 position})
       : super(
-          rotationSpeed: 0.1,
+          position: position,
           node: ResourceCache.getModel(Models.jupiter),
-          distance: 70,
-          orbitalSpeed: 0.08,
         );
 }

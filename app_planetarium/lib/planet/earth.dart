@@ -1,14 +1,13 @@
 import 'package:app_planetarium/models.dart';
-import 'package:app_planetarium/planet/orbiting_planet.dart';
+import 'package:app_planetarium/planet/planet.dart';
 import 'package:app_planetarium/resource_cache.dart';
+import 'package:vector_math/vector_math.dart' as vm;
 
 /// 地球を表すクラス
-class Earth extends OrbitingPlanet {
-  Earth()
+class Earth extends Planet {
+  Earth({required vm.Vector3 position})
       : super(
-          rotationSpeed: 0.05,
+          position: position,
           node: ResourceCache.getModel(Models.earth),
-          distance: 40,
-          orbitalSpeed: 0.2,
         );
 }

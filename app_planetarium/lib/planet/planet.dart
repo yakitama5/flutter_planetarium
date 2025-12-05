@@ -1,29 +1,20 @@
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart';
 
-/// 惑星を表す基底クラス
+/// 惑星を表すデータコンテナクラス
 abstract class Planet {
   Planet({
-    required this.rotationSpeed,
     required this.position,
     required this.node,
   });
 
-  final double rotationSpeed;
   final Node node;
   Vector3 position;
-  double rotation = 0;
+  double rotation = 0; // 回転は外部の振る舞いクラスによって更新される
 
   void updateNode() {
-    // 位置と回転を再設定し続ける
+    // 位置と回転をノードのトランスフォームに適用する
     node.globalTransform =
         Matrix4.translation(position) * Matrix4.rotationY(rotation);
-  }
-
-  bool update(double deltaSeconds) {
-    // 一定速度で回転させる
-    rotation += rotationSpeed;
-    updateNode();
-    return true;
   }
 }

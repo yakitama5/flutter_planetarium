@@ -1,14 +1,13 @@
 import 'package:app_planetarium/models.dart';
-import 'package:app_planetarium/planet/orbiting_planet.dart';
+import 'package:app_planetarium/planet/planet.dart';
 import 'package:app_planetarium/resource_cache.dart';
+import 'package:vector_math/vector_math.dart' as vm;
 
 /// 水星を表すクラス
-class Mercury extends OrbitingPlanet {
-  Mercury()
+class Mercury extends Planet {
+  Mercury({required vm.Vector3 position})
       : super(
-          rotationSpeed: 0.01,
+          position: position,
           node: ResourceCache.getModel(Models.mercury),
-          distance: 20,
-          orbitalSpeed: 0.8,
         );
 }
