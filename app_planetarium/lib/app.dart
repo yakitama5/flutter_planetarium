@@ -1,4 +1,4 @@
-import 'package:app_planetarium/planetarium.dart';
+import 'package:app_planetarium/universe.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -35,7 +35,7 @@ class _AppState extends State<App> {
       home: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(title: Text('Planetarium')),
-        body: Planetarium(elapsedSeconds: elapsedSeconds),
+        body: Universe(elapsedSeconds: elapsedSeconds),
       ),
     );
   }

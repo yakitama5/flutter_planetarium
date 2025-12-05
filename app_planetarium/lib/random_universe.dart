@@ -19,16 +19,16 @@ import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
 /// プラネタリウム全体を管理するメインウィジェット
-class Planetarium extends StatefulWidget {
-  const Planetarium({super.key, this.elapsedSeconds = 0});
+class RandomUniverse extends StatefulWidget {
+  const RandomUniverse({super.key, this.elapsedSeconds = 0});
   final double elapsedSeconds;
 
   @override
-  PlanetariumState createState() => PlanetariumState();
+  RandomUniverseState createState() => RandomUniverseState();
 }
 
 /// プラネタリウムの状態を管理するステートクラス
-class PlanetariumState extends State<Planetarium> {
+class RandomUniverseState extends State<RandomUniverse> {
   static const domeRadius = 50.0;
 
   Scene scene = Scene();

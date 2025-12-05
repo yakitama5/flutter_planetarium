@@ -9,7 +9,7 @@ enum Models {
   neptune('build/models/neptune.model', unlit: true),
   pentagram('build/models/pentagram.model'),
   polygonalStar('build/models/polygonal_star.model'),
-  saturn('build/models/saturn.model', unlit: true),
+  saturn('build/models/saturn.model'),
   starDome('build/models/star_dome.model'),
   sun('build/models/sun.model', unlit: true),
   uranus('build/models/uranus.model', unlit: true),
