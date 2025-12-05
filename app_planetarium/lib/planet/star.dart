@@ -1,29 +1,22 @@
+import 'package:app_planetarium/models.dart';
+import 'package:app_planetarium/resource_cache.dart';
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart';
 
 /// 輝く星を表す基底クラス
 class ShiningStar {
   ShiningStar({
-    required this.rotationSpeed,
-    required this.position,
-    required this.node,
-  });
+    required Models model,
+    required Vector3 position,
+    double rotationX = 0,
+    double rotationY = 0,
+    double rotationZ = 0,
+  }) : node = ResourceCache.getModel(model)
+         ..globalTransform =
+             Matrix4.translation(position) *
+             Matrix4.rotationX(rotationX) *
+             Matrix4.rotationY(rotationY) *
+             Matrix4.rotationZ(rotationZ);
 
-  final double rotationSpeed;
   final Node node;
-  Vector3 position;
-  double rotation = 0;
-
-  void updateNode() {
-    // 位置と回転を再設定し続ける
-    node.globalTransform =
-        Matrix4.translation(position) * Matrix4.rotationY(rotation);
-  }
-
-  bool update(double deltaSeconds) {
-    // 一定速度で回転させる
-    rotation += rotationSpeed;
-    updateNode();
-    return true;
-  }
 }

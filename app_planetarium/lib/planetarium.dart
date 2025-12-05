@@ -39,11 +39,7 @@ class PlanetariumState extends State<Planetarium> {
       if (modelCheck) {
         // モデル確認用シーンを作成
         shiningStars = [
-          ShiningStar(
-            rotationSpeed: 0.005,
-            position: vm.Vector3(0, 0, 4),
-            node: ResourceCache.getModel(Models.pentagram),
-          ),
+          ShiningStar(position: vm.Vector3(0, 0, 4), model: Models.pentagram),
         ];
         scene.add(shiningStars.first.node);
 
@@ -73,10 +69,18 @@ class PlanetariumState extends State<Planetarium> {
         final y = r * sin(theta) * sin(phi);
         final z = r * cos(theta);
 
+        // --- 修正箇所: ランダムな回転を生成 ---
+        // 0 ~ 2π (360度) の範囲でランダムな角度を作成
+        final rotX = random.nextDouble() * 2 * pi;
+        final rotY = random.nextDouble() * 2 * pi;
+        final rotZ = random.nextDouble() * 2 * pi;
+
         return ShiningStar(
-          rotationSpeed: 0.005,
           position: vm.Vector3(x, y, z),
-          node: ResourceCache.getModel(Models.pentagram),
+          model: Models.pentagram,
+          rotationX: rotX,
+          rotationY: rotY,
+          rotationZ: rotZ,
         );
       });
 
@@ -115,9 +119,9 @@ class PlanetariumState extends State<Planetarium> {
     /// Notes: CPUゲキ重ポイント
     /// flutter_gpuでGPUインスタンシングに対応した書き方であれば、負荷が軽減可能？
     /// FlutterScene自体はまだGPUインスタンシングに対応していない？
-    for (final s in shiningStars) {
-      s.update(widget.elapsedSeconds);
-    }
+    // for (final s in shiningStars) {
+    //   s.update(widget.elapsedSeconds);
+    // }
 
     return SizedBox.expand(
       child: CustomPaint(painter: _ScenePainter(scene, widget.elapsedSeconds)),
