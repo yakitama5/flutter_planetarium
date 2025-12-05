@@ -1,10 +1,7 @@
-import 'dart:math';
-
 import 'package:app_planetarium/behaviors/behavior.dart';
 import 'package:app_planetarium/behaviors/composite_behavior.dart';
 import 'package:app_planetarium/behaviors/orbit_behavior.dart';
 import 'package:app_planetarium/behaviors/rotation_behavior.dart';
-import 'package:app_planetarium/models.dart';
 import 'package:app_planetarium/planet/earth.dart';
 import 'package:app_planetarium/planet/jupiter.dart';
 import 'package:app_planetarium/planet/mars.dart';
@@ -43,36 +40,9 @@ class UniverseState extends State<Universe> {
   void initState() {
     // キャッシュを初期化
     ResourceCache.preloadAll().then((_) {
+      // シーンを構築
       _buildSolarSystemUniverse();
-
-      // 輝く星を作成してシーンに追加
-      final random = Random();
-      const radius = 100.0;
-      shiningStars = List.generate(100, (i) {
-        // 球体内にランダムな座標を生成
-        final r = radius * pow(random.nextDouble(), 1 / 3);
-        final theta = acos(2 * random.nextDouble() - 1);
-        final phi = 2 * pi * random.nextDouble();
-
-        final x = r * sin(theta) * cos(phi);
-        final y = r * sin(theta) * sin(phi);
-        final z = r * cos(theta);
-
-        final rotX = random.nextDouble() * 2 * pi;
-        final rotY = random.nextDouble() * 2 * pi;
-        final rotZ = random.nextDouble() * 2 * pi;
-
-        return ShiningStar(
-          position: vm.Vector3(x, y, z),
-          model: Models.pentagram,
-          rotationX: rotX,
-          rotationY: rotY,
-          rotationZ: rotZ,
-        );
-      });
-
       scene.addAll(planets.map((p) => p.node));
-      scene.addAll(shiningStars.map((s) => s.node));
 
       // ロード完了
       setState(() {
