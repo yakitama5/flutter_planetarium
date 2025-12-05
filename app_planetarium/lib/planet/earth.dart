@@ -5,5 +5,5 @@ import 'package:app_planetarium/resource_cache.dart';
 /// 地球を表すクラス
 class Earth extends Planet {
   Earth({required super.position})
-    : super(node: ResourceCache.getModel(Models.earth));
+      : super(node: ResourceCache.getModel(Models.earth), radius: 3.5);
 }

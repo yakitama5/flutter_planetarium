@@ -5,5 +5,5 @@ import 'package:app_planetarium/resource_cache.dart';
 /// 火星を表すクラス
 class Mars extends Planet {
   Mars({required super.position})
-    : super(node: ResourceCache.getModel(Models.mars));
+      : super(node: ResourceCache.getModel(Models.mars), radius: 2.5);
 }

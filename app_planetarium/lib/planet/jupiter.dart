@@ -5,5 +5,5 @@ import 'package:app_planetarium/resource_cache.dart';
 /// 木星を表すクラス
 class Jupiter extends Planet {
   Jupiter({required super.position})
-    : super(node: ResourceCache.getModel(Models.jupiter));
+      : super(node: ResourceCache.getModel(Models.jupiter), radius: 8.0);
 }

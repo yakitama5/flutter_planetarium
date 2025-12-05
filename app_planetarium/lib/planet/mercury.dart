@@ -5,5 +5,5 @@ import 'package:app_planetarium/resource_cache.dart';
 /// 水星を表すクラス
 class Mercury extends Planet {
   Mercury({required super.position})
-    : super(node: ResourceCache.getModel(Models.mercury));
+      : super(node: ResourceCache.getModel(Models.mercury), radius: 2.0);
 }

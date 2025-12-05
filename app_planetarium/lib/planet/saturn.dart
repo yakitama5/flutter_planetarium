@@ -5,5 +5,5 @@ import 'package:app_planetarium/resource_cache.dart';
 /// 土星を表すクラス
 class Saturn extends Planet {
   Saturn({required super.position})
-    : super(node: ResourceCache.getModel(Models.saturn));
+      : super(node: ResourceCache.getModel(Models.saturn), radius: 7.0);
 }

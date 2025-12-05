@@ -5,5 +5,5 @@ import 'package:app_planetarium/resource_cache.dart';
 /// 天王星を表すクラス
 class Uranus extends Planet {
   Uranus({required super.position})
-    : super(node: ResourceCache.getModel(Models.uranus));
+      : super(node: ResourceCache.getModel(Models.uranus), radius: 5.0);
 }

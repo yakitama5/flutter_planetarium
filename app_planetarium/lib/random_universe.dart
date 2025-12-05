@@ -84,24 +84,53 @@ class RandomUniverseState extends State<RandomUniverse> {
 
   /// ランダム配置の宇宙（公転なし）を構築する
   void _buildRandomUniverse() {
-    final radius = 70.0;
     final random = Random();
-    planets = [
-      Sun(position: _randomPosition(random, radius)),
-      Mercury(position: _randomPosition(random, radius)),
-      Venus(position: _randomPosition(random, radius)),
-      Earth(position: _randomPosition(random, radius)),
-      Moon(position: _randomPosition(random, radius)),
-      Mars(position: _randomPosition(random, radius)),
-      Jupiter(position: _randomPosition(random, radius)),
-      Saturn(position: _randomPosition(random, radius)),
-      Uranus(position: _randomPosition(random, radius)),
-      Neptune(position: _randomPosition(random, radius)),
+    const radius = 70.0;
+    // 生成する惑星のコンストラクタをリスト化
+    final planetConstructors = <Planet Function(vm.Vector3)>[
+      (p) => Sun(position: p),
+      (p) => Mercury(position: p),
+      (p) => Venus(position: p),
+      (p) => Earth(position: p),
+      (p) => Moon(position: p),
+      (p) => Mars(position: p),
+      (p) => Jupiter(position: p),
+      (p) => Saturn(position: p),
+      (p) => Uranus(position: p),
+      (p) => Neptune(position: p),
     ];
+
+    for (final constructor in planetConstructors) {
+      // 仮の惑星を生成して半径を取得
+      final tempPlanet = constructor(vm.Vector3.zero());
+      final position =
+          _findNonOverlappingPosition(random, radius, tempPlanet.radius, planets);
+      planets.add(constructor(position));
+    }
 
     for (var planet in planets) {
       // ランダムな宇宙では自転だけさせる
       _behaviors[planet] = RotationBehavior(rotationSpeed: 0.05);
+    }
+  }
+
+  /// 他と重ならないランダムな位置を見つける
+  vm.Vector3 _findNonOverlappingPosition(Random random, double maxDistance,
+      double newPlanetRadius, List<Planet> existingPlanets) {
+    while (true) {
+      final position = _randomPosition(random, maxDistance);
+      bool overlaps = false;
+      for (final existingPlanet in existingPlanets) {
+        final distance = position.distanceTo(existingPlanet.position);
+        // 2つの惑星の半径の合計より距離が小さい場合は衝突
+        if (distance < existingPlanet.radius + newPlanetRadius + 5.0) { // 5.0のマージン
+          overlaps = true;
+          break;
+        }
+      }
+      if (!overlaps) {
+        return position;
+      }
     }
   }
 
