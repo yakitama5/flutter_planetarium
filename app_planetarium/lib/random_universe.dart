@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:app_planetarium/behaviors/behavior.dart';
+import 'package:app_planetarium/behaviors/composite_behavior.dart';
+import 'package:app_planetarium/behaviors/orbit_behavior.dart';
 import 'package:app_planetarium/behaviors/rotation_behavior.dart';
 import 'package:app_planetarium/models.dart';
 import 'package:app_planetarium/planet/earth.dart';
@@ -103,17 +105,18 @@ class RandomUniverseState extends State<RandomUniverse> {
     super.dispose();
   }
 
-  /// ランダム配置の宇宙（公転なし）を構築する
+  /// ランダム配置の宇宙（公転あり）を構築する
   void _buildRandomUniverse() {
     final random = Random();
     const radius = 70.0;
-    // 生成する惑星のコンストラクタをリスト化
+    Planet? earth;
+
+    // 月以外の惑星を生成
     final planetConstructors = <Planet Function(vm.Vector3)>[
       (p) => Sun(position: p),
       (p) => Mercury(position: p),
       (p) => Venus(position: p),
       (p) => Earth(position: p),
-      (p) => Moon(position: p),
       (p) => Mars(position: p),
       (p) => Jupiter(position: p),
       (p) => Saturn(position: p),
@@ -122,16 +125,40 @@ class RandomUniverseState extends State<RandomUniverse> {
     ];
 
     for (final constructor in planetConstructors) {
-      // 仮の惑星を生成して半径を取得
       final tempPlanet = constructor(vm.Vector3.zero());
-      final position = _findNonOverlappingPosition(
-          random, radius, tempPlanet.radius, planets);
-      planets.add(constructor(position));
+      final position =
+          _findNonOverlappingPosition(random, radius, tempPlanet.radius, planets);
+      final newPlanet = constructor(position);
+      planets.add(newPlanet);
+
+      if (newPlanet is Earth) {
+        earth = newPlanet;
+      }
     }
 
+    // 地球が存在すれば、その周りを公転する月を追加
+    if (earth != null) {
+      const moonDistance = 5.0; // 地球と月の距離
+      final moonPosition = earth.position + vm.Vector3(moonDistance, 0, 0);
+      final moon = Moon(position: moonPosition);
+      planets.add(moon);
+
+      // 月の振る舞い：公転＋自転
+      _behaviors[moon] = CompositeBehavior(behaviors: [
+        OrbitBehavior(
+          center: earth,
+          distance: moonDistance,
+          orbitalSpeed: 0.5,
+        ),
+        RotationBehavior(rotationSpeed: 0.01), // 月の自転は遅い
+      ]);
+    }
+
+    // 各惑星（月以外）の振る舞い（自転）を設定
     for (var planet in planets) {
-      // ランダムな宇宙では自転だけさせる
-      _behaviors[planet] = RotationBehavior(rotationSpeed: 0.05);
+      if (!_behaviors.containsKey(planet)) {
+        _behaviors[planet] = RotationBehavior(rotationSpeed: 0.05);
+      }
     }
   }
 
@@ -144,8 +171,7 @@ class RandomUniverseState extends State<RandomUniverse> {
       for (final existingPlanet in existingPlanets) {
         final distance = position.distanceTo(existingPlanet.position);
         // 2つの惑星の半径の合計より距離が小さい場合は衝突
-        if (distance < existingPlanet.radius + newPlanetRadius + 5.0) {
-          // 5.0のマージン
+        if (distance < existingPlanet.radius + newPlanetRadius + 5.0) { // 5.0のマージン
           overlaps = true;
           break;
         }
