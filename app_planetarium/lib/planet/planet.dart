@@ -3,10 +3,7 @@ import 'package:vector_math/vector_math.dart';
 
 /// 惑星を表すデータコンテナクラス
 abstract class Planet {
-  Planet({
-    required this.position,
-    required this.node,
-  });
+  Planet({required this.position, required this.node});
 
   final Node node;
   Vector3 position;

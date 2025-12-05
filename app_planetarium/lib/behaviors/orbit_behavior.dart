@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:app_planetarium/behaviors/behavior.dart';
 import 'package:app_planetarium/planet/planet.dart';
-import 'package:vector_math/vector_math.dart' as vm;
 
 /// 惑星の公転を制御する振る舞い
 class OrbitBehavior implements Behavior {

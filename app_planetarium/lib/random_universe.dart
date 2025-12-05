@@ -55,7 +55,7 @@ class RandomUniverseState extends State<RandomUniverse> {
         final x = r * sin(theta) * cos(phi);
         final y = r * sin(theta) * sin(phi);
         final z = r * cos(theta);
-        
+
         final rotX = random.nextDouble() * 2 * pi;
         final rotY = random.nextDouble() * 2 * pi;
         final rotZ = random.nextDouble() * 2 * pi;
@@ -100,19 +100,21 @@ class RandomUniverseState extends State<RandomUniverse> {
 
     for (var planet in planets) {
       // ランダムな宇宙では自転だけさせる
-      _behaviors[planet] = RotationBehavior(rotationSpeed: random.nextDouble() * 0.05);
+      _behaviors[planet] = RotationBehavior(
+        rotationSpeed: random.nextDouble() * 0.05,
+      );
     }
   }
 
   vm.Vector3 _randomPosition(Random random, double maxDistance) {
-      final r = maxDistance * pow(random.nextDouble(), 1 / 3);
-      final theta = acos(2 * random.nextDouble() - 1);
-      final phi = 2 * pi * random.nextDouble();
-      return vm.Vector3(
-        r * sin(theta) * cos(phi),
-        r * sin(theta) * sin(phi),
-        r * cos(theta),
-      );
+    final r = maxDistance * pow(random.nextDouble(), 1 / 3);
+    final theta = acos(2 * random.nextDouble() - 1);
+    final phi = 2 * pi * random.nextDouble();
+    return vm.Vector3(
+      r * sin(theta) * cos(phi),
+      r * sin(theta) * sin(phi),
+      r * cos(theta),
+    );
   }
 
   @override
