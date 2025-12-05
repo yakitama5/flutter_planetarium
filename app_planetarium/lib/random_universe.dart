@@ -193,9 +193,8 @@ class RandomUniverseState extends State<RandomUniverse> {
     );
   }
 
-  void _handleKeyEvent(RawKeyEvent event) {
-    if (event is RawKeyDownEvent) {
-      // 状態を更新
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is KeyDownEvent || event is KeyRepeatEvent) {
       setState(() {
         vm.Vector3 cameraFront = vm.Vector3(
           cos(vm.radians(_cameraYaw)) * cos(vm.radians(_cameraPitch)),
@@ -216,11 +215,11 @@ class RandomUniverseState extends State<RandomUniverse> {
             break;
           case LogicalKeyboardKey.keyA:
           case LogicalKeyboardKey.arrowLeft:
-            _cameraYaw -= _rotationSpeed;
+            _cameraYaw += _rotationSpeed;
             break;
           case LogicalKeyboardKey.keyD:
           case LogicalKeyboardKey.arrowRight:
-            _cameraYaw += _rotationSpeed;
+            _cameraYaw -= _rotationSpeed;
             break;
           case LogicalKeyboardKey.space:
             final newPosition = _cameraPosition + cameraFront * _cameraSpeed;
@@ -230,7 +229,9 @@ class RandomUniverseState extends State<RandomUniverse> {
             break;
         }
       });
+      return KeyEventResult.handled;
     }
+    return KeyEventResult.ignored;
   }
 
   @override
@@ -249,9 +250,9 @@ class RandomUniverseState extends State<RandomUniverse> {
     // フォーカスを要求する
     FocusScope.of(context).requestFocus(_focusNode);
 
-    return RawKeyboardListener(
+    return Focus(
       focusNode: _focusNode,
-      onKey: _handleKeyEvent,
+      onKeyEvent: _handleKeyEvent,
       child: SizedBox.expand(
         child: CustomPaint(
             painter: _ScenePainter(
