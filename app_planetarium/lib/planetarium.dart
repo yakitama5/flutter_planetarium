@@ -24,7 +24,7 @@ class Planetarium extends StatefulWidget {
 
 /// プラネタリウムの状態を管理するステートクラス
 class PlanetariumState extends State<Planetarium> {
-  static const domeRadius = 100.0;
+  static const domeRadius = 50.0;
 
   Scene scene = Scene();
   List<Planet> planets = [];
@@ -147,7 +147,7 @@ class _ScenePainter extends CustomPainter {
       return;
     }
 
-    const radius = 80.0;
+    const radius = 20.0;
     const speed = 0.5;
     final angle = elapsedSeconds * speed;
 
