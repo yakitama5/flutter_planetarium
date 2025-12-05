@@ -44,7 +44,6 @@ class UniverseState extends State<Universe> {
     // キャッシュを初期化
     ResourceCache.preloadAll().then((_) {
       _buildSolarSystemUniverse();
-      // _buildRandomUniverse(); // こちらを代わりに呼ぶとランダム配置になる
 
       // 輝く星を作成してシーンに追加
       final random = Random();
