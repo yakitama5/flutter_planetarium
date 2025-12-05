@@ -1,33 +1,15 @@
 {
+  "model": "gemini-2.5-pro",
   "mcpServers": {
     "dart": {
       "command": "dart",
       "args": ["mcp-server"]
     },
-    "github": {
-      "command": "podman",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "GITHUB_PERSONAL_ACCESS_TOKEN",
-        "mcp/github"
-      ],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
+    "github-remote": {
+      "httpUrl": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer <GITHUB_PERSONAL_ACCESS_TOKEN>"
       }
-    },
-    "git": {
-      "command": "podman",
-      "args": [
-        "run",
-        "--rm",
-        "-i",
-        "--mount",
-        "type=bind,src=<GIT_DOCKER_PATH>,dst=/workspace",
-        "mcp/git"
-      ]
     }
   }
 }
