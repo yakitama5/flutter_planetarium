@@ -17,6 +17,7 @@ import 'package:app_planetarium/planet/uranus.dart';
 import 'package:app_planetarium/planet/venus.dart';
 import 'package:app_planetarium/resource_cache.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
@@ -36,6 +37,19 @@ class RandomUniverseState extends State<RandomUniverse> {
   final Map<Planet, Behavior> _behaviors = {};
   List<ShiningStar> shiningStars = [];
   bool loaded = false;
+  final FocusNode _focusNode = FocusNode();
+
+  // カメラ制御用の定数
+  static const double _maxPitch = 89.0;
+  static const double _minPitch = -89.0;
+  static const double _cameraSpeed = 2.0;
+  static const double _rotationSpeed = 1.0;
+  static const double _maxDistance = 100.0;
+
+  // カメラの状態
+  vm.Vector3 _cameraPosition = vm.Vector3(0, 0, 200);
+  double _cameraYaw = -90.0; // Z軸の負の方向を向くように初期化
+  double _cameraPitch = 0.0;
 
   @override
   void initState() {
@@ -82,6 +96,13 @@ class RandomUniverseState extends State<RandomUniverse> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    scene.removeAll();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   /// ランダム配置の宇宙（公転なし）を構築する
   void _buildRandomUniverse() {
     final random = Random();
@@ -103,8 +124,8 @@ class RandomUniverseState extends State<RandomUniverse> {
     for (final constructor in planetConstructors) {
       // 仮の惑星を生成して半径を取得
       final tempPlanet = constructor(vm.Vector3.zero());
-      final position =
-          _findNonOverlappingPosition(random, radius, tempPlanet.radius, planets);
+      final position = _findNonOverlappingPosition(
+          random, radius, tempPlanet.radius, planets);
       planets.add(constructor(position));
     }
 
@@ -123,7 +144,8 @@ class RandomUniverseState extends State<RandomUniverse> {
       for (final existingPlanet in existingPlanets) {
         final distance = position.distanceTo(existingPlanet.position);
         // 2つの惑星の半径の合計より距離が小さい場合は衝突
-        if (distance < existingPlanet.radius + newPlanetRadius + 5.0) { // 5.0のマージン
+        if (distance < existingPlanet.radius + newPlanetRadius + 5.0) {
+          // 5.0のマージン
           overlaps = true;
           break;
         }
@@ -145,10 +167,44 @@ class RandomUniverseState extends State<RandomUniverse> {
     );
   }
 
-  @override
-  void dispose() {
-    scene.removeAll();
-    super.dispose();
+  void _handleKeyEvent(RawKeyEvent event) {
+    if (event is RawKeyDownEvent) {
+      // 状態を更新
+      setState(() {
+        vm.Vector3 cameraFront = vm.Vector3(
+          cos(vm.radians(_cameraYaw)) * cos(vm.radians(_cameraPitch)),
+          sin(vm.radians(_cameraPitch)),
+          sin(vm.radians(_cameraYaw)) * cos(vm.radians(_cameraPitch)),
+        ).normalized();
+
+        switch (event.logicalKey) {
+          case LogicalKeyboardKey.keyW:
+          case LogicalKeyboardKey.arrowUp:
+            _cameraPitch += _rotationSpeed;
+            if (_cameraPitch > _maxPitch) _cameraPitch = _maxPitch;
+            break;
+          case LogicalKeyboardKey.keyS:
+          case LogicalKeyboardKey.arrowDown:
+            _cameraPitch -= _rotationSpeed;
+            if (_cameraPitch < _minPitch) _cameraPitch = _minPitch;
+            break;
+          case LogicalKeyboardKey.keyA:
+          case LogicalKeyboardKey.arrowLeft:
+            _cameraYaw -= _rotationSpeed;
+            break;
+          case LogicalKeyboardKey.keyD:
+          case LogicalKeyboardKey.arrowRight:
+            _cameraYaw += _rotationSpeed;
+            break;
+          case LogicalKeyboardKey.space:
+            final newPosition = _cameraPosition + cameraFront * _cameraSpeed;
+            if (newPosition.length < _maxDistance) {
+              _cameraPosition = newPosition;
+            }
+            break;
+        }
+      });
+    }
   }
 
   @override
@@ -164,61 +220,58 @@ class RandomUniverseState extends State<RandomUniverse> {
       // ノードを更新
       p.updateNode();
     }
+    // フォーカスを要求する
+    FocusScope.of(context).requestFocus(_focusNode);
 
-    return SizedBox.expand(
-      child: CustomPaint(painter: _ScenePainter(scene, widget.elapsedSeconds)),
+    return RawKeyboardListener(
+      focusNode: _focusNode,
+      onKey: _handleKeyEvent,
+      child: SizedBox.expand(
+        child: CustomPaint(
+            painter: _ScenePainter(
+          scene: scene,
+          cameraPosition: _cameraPosition,
+          cameraYaw: _cameraYaw,
+          cameraPitch: _cameraPitch,
+        )),
+      ),
     );
   }
 }
 
 class _ScenePainter extends CustomPainter {
-  _ScenePainter(this.scene, this.elapsedSeconds);
+  _ScenePainter({
+    required this.scene,
+    required this.cameraPosition,
+    required this.cameraYaw,
+    required this.cameraPitch,
+  });
 
-  Scene scene;
-  final double elapsedSeconds;
+  final Scene scene;
+  final vm.Vector3 cameraPosition;
+  final double cameraYaw;
+  final double cameraPitch;
 
   @override
   void paint(Canvas canvas, Size size) {
-    const radius = 20.0;
-    const speed = 0.5;
-    final angle = elapsedSeconds * speed;
+    // カメラの向きから前面ベクトルを計算
+    final cameraFront = vm.Vector3(
+      cos(vm.radians(cameraYaw)) * cos(vm.radians(cameraPitch)),
+      sin(vm.radians(cameraPitch)),
+      sin(vm.radians(cameraYaw)) * cos(vm.radians(cameraPitch)),
+    ).normalized();
 
-    // 1. カメラの現在位置
-    final camX = 0.0; // くぐり抜けるならXはずらさず0の方が迫力が出ます
-    final camY = radius * sin(angle);
-    final camZ = radius * cos(angle);
-    final currentPos = vm.Vector3(camX, camY, camZ);
+    // カメラのターゲット位置
+    final cameraTarget = cameraPosition + cameraFront;
 
-    // 2. 「進行方向」のベクトル (接線)
-    final forwardY = cos(angle);
-    final forwardZ = -sin(angle);
-    final forwardVector = vm.Vector3(0, forwardY, forwardZ);
-
-    // 3. 「下方向（中心方向）」のベクトル
-    final downY = -sin(angle);
-    final downZ = -cos(angle);
-    final downVector = vm.Vector3(0, downY, downZ);
-
-    // 4. ターゲットの決定
-    // 「進行方向」と「中心方向」を足して、斜め45度下（内側）を見る
-    final lookDir = (forwardVector + downVector).normalized();
-    final targetPos = currentPos + (lookDir * 50.0);
-
-    // 【重要】カメラの上方向 (UPベクトル)
-    // X軸固定をやめて、「中心から外側に向かうベクトル」をUPにします。
-    // これで「足元が常に惑星側」「頭が宇宙の果て側」になり、ループしても自然な視点になります。
-    // currentPos は (0,0,0) からのベクトルそのものなので、正規化するだけでOKです。
-    final upVector = currentPos.normalized();
-
-    // final camera = PerspectiveCamera(
-    //   position: currentPos,
-    //   target: targetPos,
-    //   up: upVector, // ここを変更
-    // );
+    // カメラの上方向ベクトルを計算（ジンバルロック対策）
+    final right = vm.Vector3(0, 1, 0).cross(cameraFront).normalized();
+    final cameraUp = cameraFront.cross(right).normalized();
 
     final camera = PerspectiveCamera(
-      position: vm.Vector3(0, 0, 200),
-      target: vm.Vector3(0, 0, 0),
+      position: cameraPosition,
+      target: cameraTarget,
+      up: cameraUp,
     );
 
     scene.render(camera, canvas, viewport: Offset.zero & size);
