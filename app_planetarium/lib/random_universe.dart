@@ -45,8 +45,8 @@ class RandomUniverseState extends State<RandomUniverse> {
 
       // 輝く星を作成してシーンに追加
       final random = Random();
-      const radius = 100.0;
-      shiningStars = List.generate(100, (i) {
+      const radius = 80.0;
+      shiningStars = List.generate(500, (i) {
         // 球体内にランダムな座標を生成
         final r = radius * pow(random.nextDouble(), 1 / 3);
         final theta = acos(2 * random.nextDouble() - 1);
@@ -84,25 +84,24 @@ class RandomUniverseState extends State<RandomUniverse> {
 
   /// ランダム配置の宇宙（公転なし）を構築する
   void _buildRandomUniverse() {
+    final radius = 70.0;
     final random = Random();
     planets = [
-      Sun(position: _randomPosition(random, 150)),
-      Mercury(position: _randomPosition(random, 150)),
-      Venus(position: _randomPosition(random, 150)),
-      Earth(position: _randomPosition(random, 150)),
-      Moon(position: _randomPosition(random, 150)),
-      Mars(position: _randomPosition(random, 150)),
-      Jupiter(position: _randomPosition(random, 150)),
-      Saturn(position: _randomPosition(random, 150)),
-      Uranus(position: _randomPosition(random, 150)),
-      Neptune(position: _randomPosition(random, 150)),
+      Sun(position: _randomPosition(random, radius)),
+      Mercury(position: _randomPosition(random, radius)),
+      Venus(position: _randomPosition(random, radius)),
+      Earth(position: _randomPosition(random, radius)),
+      Moon(position: _randomPosition(random, radius)),
+      Mars(position: _randomPosition(random, radius)),
+      Jupiter(position: _randomPosition(random, radius)),
+      Saturn(position: _randomPosition(random, radius)),
+      Uranus(position: _randomPosition(random, radius)),
+      Neptune(position: _randomPosition(random, radius)),
     ];
 
     for (var planet in planets) {
       // ランダムな宇宙では自転だけさせる
-      _behaviors[planet] = RotationBehavior(
-        rotationSpeed: random.nextDouble() * 0.05,
-      );
+      _behaviors[planet] = RotationBehavior(rotationSpeed: 0.05);
     }
   }
 
@@ -136,9 +135,6 @@ class RandomUniverseState extends State<RandomUniverse> {
       // ノードを更新
       p.updateNode();
     }
-    // for (final s in shiningStars) {
-    //   s.update(widget.elapsedSeconds);
-    // }
 
     return SizedBox.expand(
       child: CustomPaint(painter: _ScenePainter(scene, widget.elapsedSeconds)),
@@ -185,10 +181,15 @@ class _ScenePainter extends CustomPainter {
     // currentPos は (0,0,0) からのベクトルそのものなので、正規化するだけでOKです。
     final upVector = currentPos.normalized();
 
+    // final camera = PerspectiveCamera(
+    //   position: currentPos,
+    //   target: targetPos,
+    //   up: upVector, // ここを変更
+    // );
+
     final camera = PerspectiveCamera(
-      position: currentPos,
-      target: targetPos,
-      up: upVector, // ここを変更
+      position: vm.Vector3(0, 0, 200),
+      target: vm.Vector3(0, 0, 0),
     );
 
     scene.render(camera, canvas, viewport: Offset.zero & size);
