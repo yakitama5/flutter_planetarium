@@ -27,7 +27,6 @@ class PlanetariumState extends State<Planetarium> {
   static const domeRadius = 100.0;
 
   Scene scene = Scene();
-  StarDome starDome = StarDome();
   List<Planet> planets = [];
   List<ShiningStar> shiningStars = [];
   bool loaded = false;
@@ -84,7 +83,7 @@ class PlanetariumState extends State<Planetarium> {
         );
       });
 
-      scene.add(starDome.node);
+      scene.add(StarDome().node);
       scene.addAll(planets.map((p) => p.node));
       scene.addAll(shiningStars.map((s) => s.node));
 
