@@ -2,16 +2,21 @@ import 'dart:math';
 
 import 'package:app_planetarium/models.dart';
 import 'package:app_planetarium/planet/earth.dart';
+import 'package:app_planetarium/planet/jupiter.dart';
+import 'package:app_planetarium/planet/mars.dart';
+import 'package:app_planetarium/planet/mercury.dart';
+import 'package:app_planetarium/planet/moon.dart';
+import 'package:app_planetarium/planet/neptune.dart';
 import 'package:app_planetarium/planet/planet.dart';
+import 'package:app_planetarium/planet/saturn.dart';
 import 'package:app_planetarium/planet/star.dart';
 import 'package:app_planetarium/planet/sun.dart';
+import 'package:app_planetarium/planet/uranus.dart';
+import 'package:app_planetarium/planet/venus.dart';
 import 'package:app_planetarium/resource_cache.dart';
-import 'package:app_planetarium/star_dome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_scene/scene.dart';
 import 'package:vector_math/vector_math.dart' as vm;
-
-const modelCheck = true;
 
 /// プラネタリウム全体を管理するメインウィジェット
 class Planetarium extends StatefulWidget {
@@ -35,32 +40,28 @@ class PlanetariumState extends State<Planetarium> {
   void initState() {
     // キャッシュを初期化
     ResourceCache.preloadAll().then((_) {
-      // if (modelCheck) {
-      //   // モデル確認用シーンを作成
-      //   shiningStars = [
-      //     ShiningStar(position: vm.Vector3(0, 0, 4), model: Models.pentagram),
-      //   ];
-      //   scene.add(shiningStars.first.node);
-
-      //   // ロード完了
-      //   setState(() {
-      //     debugPrint('Scene loaded.');
-      //     loaded = true;
-      //   });
-      //   return;
-      // }
-
       // 惑星を作成してシーンに追加
+      final sun = Sun(position: vm.Vector3(0, 0, 0));
+      final earth = Earth();
       planets = [
-        Sun(position: vm.Vector3(0, 0, 0)),
-        Earth(position: vm.Vector3(0, -15, 0)),
+        sun,
+        Mercury(),
+        Venus(),
+        earth,
+        Moon(earth: earth),
+        Mars(),
+        Jupiter(),
+        Saturn(),
+        Uranus(),
+        Neptune(),
       ];
 
       // 輝く星を作成してシーンに追加
       final random = Random();
+      const radius = 100.0;
       shiningStars = List.generate(100, (i) {
         // 球体内にランダムな座標を生成
-        final r = domeRadius * pow(random.nextDouble(), 1 / 3);
+        final r = radius * pow(random.nextDouble(), 1 / 3);
         final theta = acos(2 * random.nextDouble() - 1);
         final phi = 2 * pi * random.nextDouble();
 
@@ -68,7 +69,6 @@ class PlanetariumState extends State<Planetarium> {
         final y = r * sin(theta) * sin(phi);
         final z = r * cos(theta);
 
-        // --- 修正箇所: ランダムな回転を生成 ---
         // 0 ~ 2π (360度) の範囲でランダムな角度を作成
         final rotX = random.nextDouble() * 2 * pi;
         final rotY = random.nextDouble() * 2 * pi;
@@ -83,7 +83,6 @@ class PlanetariumState extends State<Planetarium> {
         );
       });
 
-      scene.add(StarDome().node);
       scene.addAll(planets.map((p) => p.node));
       scene.addAll(shiningStars.map((s) => s.node));
 
@@ -136,17 +135,6 @@ class _ScenePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (modelCheck) {
-      final camera = PerspectiveCamera(
-        position: vm.Vector3(0, 0, 50.0),
-        target: vm.Vector3(0, 0, 0),
-      );
-
-      scene.render(camera, canvas, viewport: Offset.zero & size);
-
-      return;
-    }
-
     const radius = 20.0;
     const speed = 0.5;
     final angle = elapsedSeconds * speed;
