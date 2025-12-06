@@ -350,7 +350,7 @@ class _ScenePainter extends CustomPainter {
     // Dashの位置と向きを計算して更新
     // カメラの前方、少し下、Y軸は-90度回転させて常にカメラと逆を向くように調整
     final dashPosition =
-        cameraPosition + (cameraFront * 2.0) - (right * 0.0) - (cameraUp * 0.5);
+        cameraPosition + (cameraFront * 2.0) - (right * 0.0) - (cameraUp * 1.0);
     final dashRotation = vm.Matrix4.rotationY(
       vm.radians(cameraYaw + 90),
     ); // Y軸中心にヨーを適用
