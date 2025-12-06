@@ -1,9 +1,10 @@
+import 'package:app_planetarium/model_check.dart';
 import 'package:app_planetarium/random_universe.dart';
 import 'package:app_planetarium/universe.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-enum UniverseType { universe, randomUniverse }
+enum UniverseType { universe, randomUniverse, modelCheck }
 
 /// アプリケーションのメインウィジェット
 class App extends StatefulWidget {
@@ -38,6 +39,8 @@ class _AppState extends State<App> {
         return Universe(elapsedSeconds: elapsedSeconds);
       case UniverseType.randomUniverse:
         return RandomUniverse(elapsedSeconds: elapsedSeconds);
+      case UniverseType.modelCheck:
+        return const ModelCheck();
     }
   }
 
@@ -47,36 +50,48 @@ class _AppState extends State<App> {
       title: 'Planetarium',
       home: Scaffold(
         backgroundColor: Colors.black,
-        appBar: AppBar(title: const Text('Planetarium')),
+        appBar: AppBar(title: Text(_selectedUniverseType.name)),
         body: Stack(
           children: [
             _buildUniverse(),
             Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                padding: const EdgeInsets.all(8.0),
-                color: const Color.fromRGBO(0, 0, 0, 0.5),
-                child: DropdownButton<UniverseType>(
-                  value: _selectedUniverseType,
-                  dropdownColor: Colors.black,
-                  style: const TextStyle(color: Colors.white),
-                  onChanged: (UniverseType? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        _selectedUniverseType = newValue;
-                      });
-                    }
-                  },
-                  items: const [
-                    DropdownMenuItem(
-                      value: UniverseType.universe,
-                      child: Text('Universe'),
-                    ),
-                    DropdownMenuItem(
-                      value: UniverseType.randomUniverse,
-                      child: Text('Random Universe'),
-                    ),
-                  ],
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: DropdownButton<UniverseType>(
+                    value: _selectedUniverseType,
+                    dropdownColor: Colors.black,
+                    style: const TextStyle(color: Colors.white),
+                    iconEnabledColor: Colors.white,
+                    underline: const SizedBox.shrink(),
+                    onChanged: (UniverseType? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          _selectedUniverseType = newValue;
+                        });
+                      }
+                    },
+                    items: const [
+                      DropdownMenuItem(
+                        value: UniverseType.universe,
+                        child: Text('Universe'),
+                      ),
+                      DropdownMenuItem(
+                        value: UniverseType.randomUniverse,
+                        child: Text('Random Universe'),
+                      ),
+                      DropdownMenuItem(
+                        value: UniverseType.modelCheck,
+                        child: Text('Model Check'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
