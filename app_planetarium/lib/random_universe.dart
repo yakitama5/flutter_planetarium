@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:app_planetarium/behaviors/behavior.dart';
@@ -5,6 +6,7 @@ import 'package:app_planetarium/behaviors/composite_behavior.dart';
 import 'package:app_planetarium/behaviors/orbit_behavior.dart';
 import 'package:app_planetarium/behaviors/rotation_behavior.dart';
 import 'package:app_planetarium/models.dart';
+import 'package:app_planetarium/planet/dash.dart';
 import 'package:app_planetarium/planet/earth.dart';
 import 'package:app_planetarium/planet/jupiter.dart';
 import 'package:app_planetarium/planet/mars.dart';
@@ -40,6 +42,9 @@ class RandomUniverseState extends State<RandomUniverse> {
   List<ShiningStar> shiningStars = [];
   bool loaded = false;
   final FocusNode _focusNode = FocusNode();
+  late final Dash _dash;
+  bool _isCameraMoving = false;
+  Timer? _cameraMoveTimer;
 
   // カメラ制御用の定数
   static const double _maxPitch = 89.0;
@@ -58,6 +63,8 @@ class RandomUniverseState extends State<RandomUniverse> {
     // キャッシュを初期化
     ResourceCache.preloadAll().then((_) {
       _buildRandomUniverse();
+      _dash = Dash(position: vm.Vector3.zero());
+      scene.add(_dash.node);
 
       // 輝く星を作成してシーンに追加
       final random = Random();
@@ -109,6 +116,7 @@ class RandomUniverseState extends State<RandomUniverse> {
   void dispose() {
     scene.removeAll();
     _focusNode.dispose();
+    _cameraMoveTimer?.cancel();
     super.dispose();
   }
 
@@ -133,8 +141,12 @@ class RandomUniverseState extends State<RandomUniverse> {
 
     for (final constructor in planetConstructors) {
       final tempPlanet = constructor(vm.Vector3.zero());
-      final position =
-          _findNonOverlappingPosition(random, radius, tempPlanet.radius, planets);
+      final position = _findNonOverlappingPosition(
+        random,
+        radius,
+        tempPlanet.radius,
+        planets,
+      );
       final newPlanet = constructor(position);
       planets.add(newPlanet);
 
@@ -151,14 +163,16 @@ class RandomUniverseState extends State<RandomUniverse> {
       planets.add(moon);
 
       // 月の振る舞い：公転＋自転
-      _behaviors[moon] = CompositeBehavior(behaviors: [
-        OrbitBehavior(
-          center: earth,
-          distance: moonDistance,
-          orbitalSpeed: 0.5,
-        ),
-        RotationBehavior(rotationSpeed: 0.01), // 月の自転は遅い
-      ]);
+      _behaviors[moon] = CompositeBehavior(
+        behaviors: [
+          OrbitBehavior(
+            center: earth,
+            distance: moonDistance,
+            orbitalSpeed: 0.5,
+          ),
+          RotationBehavior(rotationSpeed: 0.01), // 月の自転は遅い
+        ],
+      );
     }
 
     // 各惑星（月以外）の振る舞い（自転）を設定
@@ -170,15 +184,20 @@ class RandomUniverseState extends State<RandomUniverse> {
   }
 
   /// 他と重ならないランダムな位置を見つける
-  vm.Vector3 _findNonOverlappingPosition(Random random, double maxDistance,
-      double newPlanetRadius, List<Planet> existingPlanets) {
+  vm.Vector3 _findNonOverlappingPosition(
+    Random random,
+    double maxDistance,
+    double newPlanetRadius,
+    List<Planet> existingPlanets,
+  ) {
     while (true) {
       final position = _randomPosition(random, maxDistance);
       bool overlaps = false;
       for (final existingPlanet in existingPlanets) {
         final distance = position.distanceTo(existingPlanet.position);
         // 2つの惑星の半径の合計より距離が小さい場合は衝突
-        if (distance < existingPlanet.radius + newPlanetRadius + 5.0) { // 5.0のマージン
+        if (distance < existingPlanet.radius + newPlanetRadius + 5.0) {
+          // 5.0のマージン
           overlaps = true;
           break;
         }
@@ -202,7 +221,16 @@ class RandomUniverseState extends State<RandomUniverse> {
 
   KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
     if (event is KeyDownEvent || event is KeyRepeatEvent) {
+      // 状態を更新
       setState(() {
+        _isCameraMoving = true;
+        _cameraMoveTimer?.cancel();
+        _cameraMoveTimer = Timer(const Duration(milliseconds: 100), () {
+          setState(() {
+            _isCameraMoving = false;
+          });
+        });
+
         vm.Vector3 cameraFront = vm.Vector3(
           cos(vm.radians(_cameraYaw)) * cos(vm.radians(_cameraPitch)),
           sin(vm.radians(_cameraPitch)),
@@ -247,6 +275,13 @@ class RandomUniverseState extends State<RandomUniverse> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // Dashのアニメーションを切り替え
+    if (_isCameraMoving) {
+      _dash.playAnimation(DashAnimation.run);
+    } else {
+      _dash.playAnimation(DashAnimation.idle);
+    }
+
     // シーンの更新
     for (final p in planets) {
       // 振る舞いを適用
@@ -262,12 +297,14 @@ class RandomUniverseState extends State<RandomUniverse> {
       onKeyEvent: _handleKeyEvent,
       child: SizedBox.expand(
         child: CustomPaint(
-            painter: _ScenePainter(
-          scene: scene,
-          cameraPosition: _cameraPosition,
-          cameraYaw: _cameraYaw,
-          cameraPitch: _cameraPitch,
-        )),
+          painter: _ScenePainter(
+            scene: scene,
+            cameraPosition: _cameraPosition,
+            cameraYaw: _cameraYaw,
+            cameraPitch: _cameraPitch,
+            dashNode: _dash.node,
+          ),
+        ),
       ),
     );
   }
@@ -279,12 +316,14 @@ class _ScenePainter extends CustomPainter {
     required this.cameraPosition,
     required this.cameraYaw,
     required this.cameraPitch,
+    required this.dashNode,
   });
 
   final Scene scene;
   final vm.Vector3 cameraPosition;
   final double cameraYaw;
   final double cameraPitch;
+  final Node dashNode;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -307,6 +346,25 @@ class _ScenePainter extends CustomPainter {
       target: cameraTarget,
       up: cameraUp,
     );
+
+    // Dashの位置と向きを計算して更新
+    // カメラの前方、少し下、Y軸は-90度回転させて常にカメラと逆を向くように調整
+    final dashPosition =
+        cameraPosition + (cameraFront * 2.0) - (right * 0.0) - (cameraUp * 0.5);
+    final dashRotation = vm.Matrix4.rotationY(
+      vm.radians(cameraYaw + 90),
+    ); // Y軸中心にヨーを適用
+    final pitchRotation = vm.Matrix4.rotationX(
+      vm.radians(cameraPitch),
+    ); // X軸中心にピッチを適用
+    // スケールを調整
+    final scaleMatrix = vm.Matrix4.identity()..scale(vm.Vector3.all(0.5));
+
+    dashNode.globalTransform =
+        vm.Matrix4.translation(dashPosition) *
+        dashRotation *
+        pitchRotation *
+        scaleMatrix;
 
     scene.render(camera, canvas, viewport: Offset.zero & size);
   }
