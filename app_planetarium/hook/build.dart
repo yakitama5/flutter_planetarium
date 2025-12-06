@@ -6,6 +6,7 @@ void main(List<String> args) {
     buildModels(
       buildInput: config,
       inputFilePaths: [
+        'assets/glb/dash.glb',
         'assets/glb/earth.glb',
         'assets/glb/four_pointed_star.glb',
         'assets/glb/jupiter.glb',

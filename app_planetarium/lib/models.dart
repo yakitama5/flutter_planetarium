@@ -1,5 +1,6 @@
 /// 利用可能な3Dモデルの一覧
 enum Models {
+  dash('build/models/dash.model', unlit: true),
   earth('build/models/earth.model'),
   fourPointedStar('build/models/four_pointed_star.model', unlit: true),
   jupiter('build/models/jupiter.model', unlit: true),
