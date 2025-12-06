@@ -62,6 +62,11 @@ class RandomUniverseState extends State<RandomUniverse> {
       // 輝く星を作成してシーンに追加
       final random = Random();
       const radius = 80.0;
+      final starModels = [
+        Models.pentagram,
+        Models.polygonalStar,
+        Models.fourPointedStar,
+      ];
       shiningStars = List.generate(500, (i) {
         // 球体内にランダムな座標を生成
         final r = radius * pow(random.nextDouble(), 1 / 3);
@@ -76,9 +81,11 @@ class RandomUniverseState extends State<RandomUniverse> {
         final rotY = random.nextDouble() * 2 * pi;
         final rotZ = random.nextDouble() * 2 * pi;
 
+        final randomModel = starModels[random.nextInt(starModels.length)];
+
         return ShiningStar(
           position: vm.Vector3(x, y, z),
-          model: Models.pentagram,
+          model: randomModel,
           rotationX: rotX,
           rotationY: rotY,
           rotationZ: rotZ,
